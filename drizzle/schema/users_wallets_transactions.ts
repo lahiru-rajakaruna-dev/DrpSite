@@ -34,12 +34,14 @@ export const table_users_wallets_transactions = pgTable(
 			.notNull(),
 		transaction_running_wallet_balance: decimal({ mode: 'number' })
 			.notNull(),
-		created_at                        : timestamp({ mode: 'date',
+		created_at                        : timestamp({
+														  mode     : 'date',
 														  precision: 6
 													  })
 			.notNull()
 			.defaultNow(),
-		updated_at                        : timestamp({ mode: 'date',
+		updated_at                        : timestamp({
+														  mode     : 'date',
 														  precision: 6
 													  })
 			.notNull()
@@ -47,28 +49,28 @@ export const table_users_wallets_transactions = pgTable(
 	},
 	(table) => {
 		return {
-			pk                       : primaryKey({
-													  name   : 'transaction_primary_key',
-													  columns: [ table.transaction_id ]
-												  }),
-			transaction_wallet_id_fk : foreignKey({
-													  name          : 'transaction_wallet_id_fk',
-													  columns       : [ table.transaction_wallet_id ],
-													  foreignColumns: [ table_users_wallets.user_wallet_id ]
-												  }),
-			transaction_user_id_fk   : foreignKey({
-													  name          : 'transaction_user_id_fk',
-													  columns       : [ table.transaction_user_id ],
-													  foreignColumns: [ table_users.user_id ]
-												  }),
-			transaction_webhook_id_fk: foreignKey({
-													  name          : 'transaction_webhook_id_fk',
-													  columns       : [ table.transaction_webhook_id ],
-													  foreignColumns: [ table_webhook_buffer.webhook_id ]
-												  }),
-			transaction_user_id_idx  : index('transaction_user_id_idx')
+			pk                         : primaryKey({
+														name   : 'transaction_primary_key',
+														columns: [ table.transaction_id ]
+													}),
+			transaction_wallet_id_fk   : foreignKey({
+														name          : 'transaction_wallet_id_fk',
+														columns       : [ table.transaction_wallet_id ],
+														foreignColumns: [ table_users_wallets.user_wallet_id ]
+													}),
+			transaction_user_id_fk     : foreignKey({
+														name          : 'transaction_user_id_fk',
+														columns       : [ table.transaction_user_id ],
+														foreignColumns: [ table_users.user_id ]
+													}),
+			transaction_webhook_id_fk  : foreignKey({
+														name          : 'transaction_webhook_id_fk',
+														columns       : [ table.transaction_webhook_id ],
+														foreignColumns: [ table_webhook_buffer.webhook_id ]
+													}),
+			transaction_user_id_idx    : index('transaction_user_id_idx')
 				.on(table.transaction_user_id),
-			transaction_wallet_idx   : index('transaction_wallet_id_idx')
+			transaction_user_wallet_idx: index('transaction_user_wallet_id_idx')
 				.on(table.transaction_wallet_id),
 			
 		}

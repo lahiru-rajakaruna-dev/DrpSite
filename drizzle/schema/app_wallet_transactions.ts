@@ -55,9 +55,6 @@ export const table_app_wallet_transactions = pgTable(
 													 columns       : [ table.transaction_wallet_id ],
 													 foreignColumns: [ table_app_wallet.app_wallet_id ]
 												 }),
-			transaction_wallet_idx  : index('transaction_wallet_id_idx')
-				.on(table.transaction_wallet_id),
-			
 		}
 	}
 )
