@@ -1,4 +1,14 @@
-import {TInsertPage, TInsertProduct, TInsertUser, TSelectPage, TSelectProduct, TSelectUser, TUpdatePage, TUpdateProduct, TUpdateUser} from "@drizzle/schema";
+import {
+	TInsertPage,
+	TInsertProduct,
+	TInsertUser,
+	TSelectPage,
+	TSelectProduct,
+	TSelectUser,
+	TUpdatePage,
+	TUpdateProduct,
+	TUpdateUser
+} from "@drizzle/schema";
 
 
 
@@ -9,7 +19,10 @@ export interface IOrmService {
 
 	createUser(user: TInsertUser): Promise<TSelectUser>
 
-	updateUserById(id: string, userUpdates: TUpdateUser): Promise<TSelectUser>
+	updateUserById(
+		id: string,
+		userUpdates: TUpdateUser
+	): Promise<TSelectUser>
 
 	deleteUserById(id: string): Promise<boolean>
 

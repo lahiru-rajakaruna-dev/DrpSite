@@ -1,20 +1,42 @@
-import {LoggerServiceFactory}                                                                                                                                                   from "@/app/api/_modules/logger_module/logger.factory";
-import {BaseOrmService}                                                                                                                                                         from "@/app/api/_modules/orm_module/abstract.orm";
-import * as schema                                                                                                                                                              from "@drizzle/schema";
-import {table_pages, table_products, table_users, TInsertPage, TInsertProduct, TInsertUser, TSelectPage, TSelectProduct, TSelectUser, TUpdatePage, TUpdateProduct, TUpdateUser} from "@drizzle/schema";
+import {LoggerServiceFactory} from "@/app/api/_modules/logger_module/logger.factory";
+import {BaseOrmService}       from "@/app/api/_modules/orm_module/abstract.orm";
+import * as schema            from "@drizzle/schema";
+import {
+	table_pages,
+	table_products,
+	table_users,
+	TInsertPage,
+	TInsertProduct,
+	TInsertUser,
+	TSelectPage,
+	TSelectProduct,
+	TSelectUser,
+	TUpdatePage,
+	TUpdateProduct,
+	TUpdateUser
+}                             from "@drizzle/schema";
 
-import * as dotenv               from 'dotenv'
-import {eq}                      from "drizzle-orm";
-import {drizzle, NodePgDatabase} from "drizzle-orm/node-postgres";
-import path                      from "node:path";
-import {Client}                  from "pg";
+import * as dotenv from 'dotenv'
+import {eq}        from "drizzle-orm";
+import {
+	drizzle,
+	NodePgDatabase
+}                  from "drizzle-orm/node-postgres";
+import {and}       from "drizzle-orm/sql/expressions/conditions";
+import path        from "node:path";
+import {Client}    from "pg";
 
 
 
 dotenv.config({
 				  path: [
-					  path.resolve(process.cwd(), './env.development'),
-					  path.resolve(process.cwd(), './env.production')
+					  path.resolve(
+						  process.cwd(),
+						  './env.development'
+					  ), path.resolve(
+						  process.cwd(),
+						  './env.production'
+					  )
 				  ]
 			  })
 
@@ -45,7 +67,8 @@ export class DrizzleOrmService extends BaseOrmService {
 
 	async createPage(page: TInsertPage): Promise<TSelectPage> {
 		try {
-			const result = await this.drizzle_driver.insert(table_pages).values(
+			const result = await this.drizzle_driver.insert(table_pages)
+									 .values({...page, page_owner_id: userID})
 				page).returning()
 			return this.logger.logAndReturn(
 				result[0],

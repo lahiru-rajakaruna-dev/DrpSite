@@ -1,12 +1,22 @@
-import {ILoggerService}                                                                                                                                                                                                                                                                                          from "@/app/api/_modules/logger_module/logger.interface";
-import {IOrmService}                                                                                                                                                                                                                                                                                             from "@/app/api/_modules/orm_module/orm.interface";
-import {InsertPageSchema, InsertProductSchema, InsertUserSchema, SelectPageSchema, SelectProductSchema, SelectUserSchema, TInsertPage, TInsertProduct, TInsertUser, TSelectPage, TSelectProduct, TSelectUser, TUpdatePage, TUpdateProduct, TUpdateUser, UpdatePageSchema, UpdateProductSchema, UpdateUserSchema} from "../../../../../drizzle/schema";
+import {ILoggerService} from "@/app/api/_modules/logger_module/logger.interface";
+import {IOrmService}    from "@/app/api/_modules/orm_module/orm.interface";
+import {
+	TInsertPage,
+	TInsertProduct,
+	TInsertUser,
+	TSelectPage,
+	TSelectProduct,
+	TSelectUser,
+	TUpdatePage,
+	TUpdateProduct,
+	TUpdateUser
+}                       from "@drizzle/schema";
 
 
 
 export abstract class BaseOrmService implements IOrmService {
-	protected readonly logger: ILoggerService
 	protected static instance: IOrmService
+	protected readonly logger: ILoggerService
 
 	protected constructor(logger: ILoggerService) {
 		this.logger = logger
