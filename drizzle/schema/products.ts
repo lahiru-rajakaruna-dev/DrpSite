@@ -28,12 +28,19 @@ export const product_status = [
 ] as const
 
 export const table_products = pgTable(
-	'products', {
-		product_id              : text().notNull(),
-		product_owner_id        : text().notNull(),
-		product_page_id         : text().notNull(),
-		product_name            : text().notNull(),
-		product_stock_unit_count: integer().notNull().default(0),
+	'products',
+	{
+		product_id              : text()
+			.notNull(),
+		product_owner_id        : text()
+			.notNull(),
+		product_page_id         : text()
+			.notNull(),
+		product_name            : text()
+			.notNull(),
+		product_stock_unit_count: integer()
+			.notNull()
+			.default(0),
 		product_status          : text({enum: product_status})
 			.notNull()
 			.default('DRAFT'),
@@ -71,19 +78,28 @@ export const table_products = pgTable(
 	}
 )
 
-export const relations_product = relations(table_products, ({one, many}) => {
-	return {
-		owner: one(table_users, {
-			fields    : [table_products.product_owner_id],
-			references: [table_users.user_id]
-		}),
-		page : one(table_pages, {
-			fields    : [table_products.product_page_id],
-			references: [table_pages.page_id]
-		}),
-		sales: many(table_sales)
+export const relations_product = relations(
+	table_products,
+	({one, many}) => {
+		return {
+			owner: one(
+				table_users,
+				{
+					fields    : [table_products.product_owner_id],
+					references: [table_users.user_id]
+				}
+			),
+			page : one(
+				table_pages,
+				{
+					fields    : [table_products.product_page_id],
+					references: [table_pages.page_id]
+				}
+			),
+			sales: many(table_sales)
+		}
 	}
-})
+)
 
 export const SelectProductSchema = createSelectSchema(table_products)
 export const UpdateProductSchema = createUpdateSchema(table_products)
