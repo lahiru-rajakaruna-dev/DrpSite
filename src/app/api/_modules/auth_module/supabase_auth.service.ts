@@ -1,4 +1,4 @@
-import {BaseAuthService}      from "@/app/api/_modules/auth_module/abstract_auth.service";
+import {BaseAuthService}      from "@/app/api/_modules/auth_module/base.auth.service";
 import {LoggerServiceFactory} from "@/app/api/_modules/logger_module/logger.factory";
 import {
 	createClient,
@@ -32,14 +32,14 @@ export class SupabaseAuthService extends BaseAuthService {
 		const SUPABASE_URL = process.env.SUPABASE_PROJECT_URL
 		const SUPABASE_KEY = process.env.SUPABASE_KEY
 
-		if (!this.auth_service_instance) {
-			this.auth_service_instance = new SupabaseAuthService(
+		if (!this.instance) {
+			this.instance = new SupabaseAuthService(
 				SUPABASE_URL!,
 				SUPABASE_KEY!
 			)
 		}
 
-		return this.auth_service_instance
+		return this.instance
 	}
 
 	canProceed(request: Request): boolean {
