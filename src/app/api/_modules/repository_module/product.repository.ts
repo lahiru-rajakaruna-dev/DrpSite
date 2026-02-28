@@ -1,42 +1,31 @@
-import {LoggerServiceFactory} from "@/app/api/_modules/logger_module/logger.factory";
-import {OrmServiceFactory}    from "@/app/api/_modules/orm_module/orm.factory";
-import {IOrmService}          from "@/app/api/_modules/orm_module/orm.interface";
+import {TOrmTypes} from "@/app/api/_modules/orm_module/orm.interface";
 import {
 	BaseRepository,
 	RepositoryError
-}                             from "@/app/api/_modules/repository_module/abstract.repository";
+}                  from "@/app/api/_modules/repository_module/abstract.repository";
 import {
-	TInsertPage,
-	TSelectPage,
-	TUpatePage
-}                             from "@drizzle/schema";
+	table_products,
+	TInsertProduct,
+	TSelectProduct,
+	TUpdateProduct
+}                  from "@drizzle/schema";
+import {eq}        from "drizzle-orm";
+import {and}       from "drizzle-orm/sql/expressions/conditions";
 
 
 
-export class ProductRepository
-	extends BaseRepository<TSelectPage, TUpatePage, TInsertPage> {
-	private static instance: ProductRepository;
+export class ProductRepository<TOrmType extends TOrmTypes> {
 
-	private constructor(orm: IOrmService) {
-		super(
-			LoggerServiceFactory.getLogger(),
-			orm
-		)
-	}
+	private readonly base_repository: BaseRepository<TOrmType>
 
-	public static async getInstance() {
-		if (!this.instance) {
-			const orm     = await OrmServiceFactory.getService()
-			this.instance = new ProductRepository(orm)
-		}
-
-		return this.instance
+	constructor(baseRepository: BaseRepository<TOrmType>) {
+		this.base_repository = baseRepository
 	}
 
 	async createOne(
 		userID: string,
-		data: TInsertPage
-	): Promise<TSelectPage> {
+		data: TInsertProduct
+	): Promise<TSelectProduct> {
 		if (!userID) {
 			throw new RepositoryError(
 				'USER_ID not provided',
@@ -51,18 +40,21 @@ export class ProductRepository
 			)
 		}
 
-		const result = await this.orm.createProduct(
-			userID,
-			data
-		)
+		const result = await this.base_repository.orm.driver.insert(
+			table_products).values({
 
-		return this.logger.logAndReturn(
-			result,
+									   ...data,
+									   product_owner_id: userID,
+								   }
+		).returning()
+
+		return this.base_repository.logger.logAndReturn(
+			result[0],
 			'operation: create_one'
 		)
 	}
 
-	async getAll(userID: string): Promise<TSelectPage[]> {
+	async getAll(userID: string): Promise<TSelectProduct[]> {
 		if (!userID) {
 			throw new RepositoryError(
 				'USER_ID not provided',
@@ -70,9 +62,14 @@ export class ProductRepository
 			)
 		}
 
-		const result = await this.orm.getProductsByUserId(userID)
+		const result = await this.base_repository.orm.driver.query.table_products.findMany(
+			{
+				where(columns) {
+					return eq(columns.product_owner_id, userID)
+				}
+			})
 
-		return this.logger.logAndReturn(
+		return this.base_repository.logger.logAndReturn(
 			result,
 			'operation: get_all'
 		)
@@ -81,7 +78,7 @@ export class ProductRepository
 	async getOne(
 		userID: string,
 		id: string
-	): Promise<TSelectPage | undefined> {
+	): Promise<TSelectProduct | undefined> {
 		if (!userID) {
 			throw new RepositoryError(
 				'USER_ID not provided',
@@ -96,11 +93,18 @@ export class ProductRepository
 			)
 		}
 
-		const result = await this.orm.getProductById(
-			userID,
-			id
+		const result = await this.base_repository.orm.driver.query.table_products.findFirst(
+			{
+				where(columns) {
+					return (and(
+						eq(columns.product_owner_id, userID),
+						eq(columns.product_id, id)
+					))
+				}
+			}
 		)
-		return this.logger.logAndReturn(
+
+		return this.base_repository.logger.logAndReturn(
 			result,
 			'operation: get_one'
 		);
@@ -109,8 +113,8 @@ export class ProductRepository
 	async updateOne(
 		userID: string,
 		id: string,
-		updates: TUpatePage
-	): Promise<TSelectPage | undefined> {
+		updates: TUpdateProduct
+	): Promise<TSelectProduct | undefined> {
 		if (!userID) {
 			throw new RepositoryError(
 				'USER_ID not provided',
@@ -132,13 +136,16 @@ export class ProductRepository
 			)
 		}
 
-		const result = await this.orm.updateProductById(
-			userID,
-			id,
-			updates
-		)
-		return this.logger.logAndReturn(
-			result,
+		const result = await this.base_repository.orm.driver.update(
+			table_products).set(updates).where(
+			and(
+				eq(table_products.product_owner_id, userID),
+				eq(table_products.product_id, id)
+			)
+		).returning()
+
+		return this.base_repository.logger.logAndReturn(
+			result[0],
 			'operation: update_one'
 		);
 	}
@@ -161,14 +168,20 @@ export class ProductRepository
 			)
 		}
 
-		const result = await this.orm.deleteProductById(
-			userID,
-			id
+		const result = await this.base_repository.orm.driver.delete(
+			table_products).where(
+			and(
+				eq(table_products.product_owner_id, userID),
+				eq(table_products.product_id, id)
+			)
 		);
-		return this.logger.logAndReturn(
+
+		this.base_repository.logger.logAndReturn(
 			result,
 			'operation: delete_one'
 		)
+
+		return true
 	}
 
 }

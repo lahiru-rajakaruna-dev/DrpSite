@@ -1,41 +1,27 @@
-import {LoggerServiceFactory} from "@/app/api/_modules/logger_module/logger.factory";
-import {OrmServiceFactory}    from "@/app/api/_modules/orm_module/orm.factory";
-import {IOrmService}          from "@/app/api/_modules/orm_module/orm.interface";
+import {TOrmTypes} from "@/app/api/_modules/orm_module/orm.interface";
 import {
 	BaseRepository,
 	RepositoryError
-}                             from "@/app/api/_modules/repository_module/abstract.repository";
+}                  from "@/app/api/_modules/repository_module/abstract.repository";
 import {
+	table_users,
 	TInsertUser,
 	TSelectUser,
 	TUpdateUser
-}                             from "@drizzle/schema";
+}                  from "@drizzle/schema";
+import {eq}        from "drizzle-orm";
 
 
 
-export class UserRepository
-	extends BaseRepository<TSelectUser, TUpdateUser, TInsertUser> {
-	private static instance: UserRepository
+export class UserRepository<TOrmType extends TOrmTypes> {
+	private base_repository: BaseRepository<TOrmType>
 
-	private constructor(orm: IOrmService) {
-		super(
-			LoggerServiceFactory.getLogger(),
-			orm
-		)
-	}
-
-	public static async getInstance() {
-		if (!this.instance) {
-			const orm     = await OrmServiceFactory.getService()
-			this.instance = new UserRepository(orm)
-		}
-
-		return this.instance
+	constructor(baseRepository: BaseRepository<TOrmType>) {
+		this.base_repository = baseRepository
 	}
 
 	async deleteOne(
 		userID: string,
-		id?: string
 	): Promise<boolean> {
 		if (!userID) {
 			throw new RepositoryError(
@@ -44,11 +30,19 @@ export class UserRepository
 			)
 		}
 
-		const result = await this.orm.deleteUserById(userID)
-		return this.logger.logAndReturn(
+		const result = await this.base_repository.orm.driver.delete(table_users)
+								 .where(eq(
+									 table_users.user_id,
+									 userID
+								 ))
+								 .returning()
+
+		this.base_repository.logger.logAndReturn(
 			result,
 			'operation: delete_one'
 		)
+
+		return true
 	}
 
 	async createOne(
@@ -69,31 +63,51 @@ export class UserRepository
 			)
 		}
 
-		const result = await this.orm.createUser({...data, user_id: userID})
-		return this.logger.logAndReturn(
-			result,
+		const result = await this.base_repository.orm.driver.insert(table_users)
+								 .values({
+											 ...data,
+											 user_id: userID
+										 })
+								 .returning()
+
+		return this.base_repository.logger.logAndReturn(
+			result[0],
 			'create_one'
 		)
 	}
 
 	async getAll(): Promise<TSelectUser[]> {
-		const result = await this.orm.getUsers()
-		return this.logger.logAndReturn(
+		const result = await this.base_repository.orm.driver.query.table_users.findMany()
+		return this.base_repository.logger.logAndReturn(
 			result,
 			'operation: get_all'
 		);
 	}
 
-	async getOne(id: string): Promise<TSelectUser | undefined> {
-		if (!id) {
+	async getOne(userID: string): Promise<TSelectUser | undefined> {
+		if (!userID) {
 			throw new RepositoryError(
-				'ID not provided',
+				'USER_ID not provided',
 				'get_one'
 			)
 		}
 
-		const result = await this.orm.getUserById(id)
-		return this.logger.logAndReturn(
+		const result = await this.base_repository
+								 .orm
+								 .driver
+								 .query
+								 .table_users
+								 .findFirst(
+									 {
+										 where(columns) {
+											 return eq(
+												 columns.user_id,
+												 userID
+											 )
+										 }
+									 })
+
+		return this.base_repository.logger.logAndReturn(
 			result,
 			'operation: get_one'
 		)
@@ -101,7 +115,6 @@ export class UserRepository
 
 	async updateOne(
 		userID: string,
-		id: string,
 		updates: TUpdateUser
 	): Promise<TSelectUser | undefined> {
 		if (!userID) {
@@ -118,13 +131,15 @@ export class UserRepository
 			)
 		}
 
-		const result = await this.orm.updateUserById(
-			userID,
-			updates
-		)
+		const result = await this.base_repository
+								 .orm
+								 .driver.update(table_users)
+								 .set(updates)
+								 .where(eq(table_users.user_id, userID))
+								 .returning()
 
-		return this.logger.logAndReturn(
-			result,
+		return this.base_repository.logger.logAndReturn(
+			result[0],
 			'operation: update_one'
 		)
 	}
