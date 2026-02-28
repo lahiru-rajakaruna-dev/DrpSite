@@ -1,11 +1,6 @@
-import {NextApiRequest} from "next";
-import {NextResponse}   from "next/server";
-
-
-
 export interface IAuthService {
 
-	authorizeRequest(request: Request): boolean
+	canProceed(request: Request): boolean
 }
 
 
