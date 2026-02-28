@@ -3,7 +3,7 @@ import {TDrizzleOrm}    from "@/app/api/_modules/orm_module/drizzle.orm";
 
 
 
-export interface IOrmService<TDriver = unknown> {
+export interface IOrmService<TDriver> {
 
 	get driver(): TDriver
 
@@ -14,3 +14,4 @@ export interface IOrmService<TDriver = unknown> {
 
 
 export const ORM_PROVIDERS = ['DRIZZLE'] as const
+export type TOrmTypes = TDrizzleOrm
