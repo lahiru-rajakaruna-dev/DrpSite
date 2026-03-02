@@ -28,7 +28,7 @@ export type TDrizzleOrm = ReturnType<typeof drizzle<typeof schema, Client>>
 
 
 export class DrizzleOrmService
-	extends BaseOrmService<TDrizzleOrm> {
+	extends BaseOrmService {
 
 	private static instance: DrizzleOrmService | undefined;
 
