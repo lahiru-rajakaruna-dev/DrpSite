@@ -4,8 +4,8 @@ import {IOrmService}          from "@/app/api/_modules/orm_module/orm.interface"
 
 
 
-export abstract class BaseOrmService<TDriver>
-	implements IOrmService<TDriver> {
+export abstract class BaseOrmService
+	implements IOrmService {
 	private readonly _logger: ILoggerService
 	private readonly _driver: TDriver;
 
