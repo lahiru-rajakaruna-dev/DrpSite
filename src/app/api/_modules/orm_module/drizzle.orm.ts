@@ -1,6 +1,8 @@
-import {BaseOrmService} from "@/app/api/_modules/orm_module/abstract.orm";
-import {IOrmService}    from "@/app/api/_modules/orm_module/orm.interface";
-import * as schema      from "@drizzle/schema";
+import {LoggerServiceFactory} from "@/app/api/_modules/logger_module/logger.factory";
+import {ILoggerService}       from "@/app/api/_modules/logger_module/logger.interface";
+import {BaseOrmService}       from "@/app/api/_modules/orm_module/abstract.orm";
+import {IOrmService}          from "@/app/api/_modules/orm_module/orm.interface";
+import * as schema            from "@drizzle/schema";
 
 import * as dotenv from 'dotenv'
 import {drizzle}   from "drizzle-orm/node-postgres/driver";
