@@ -45,7 +45,7 @@ export class DrizzleOrmService
 
 	}
 
-	public static async getInstance(): Promise<IOrmService<TDrizzleOrm>> {
+	public static async getInstance(): Promise<BaseOrmService> {
 		if (!this.instance) {
 			const dbClient = new Client({
 											connectionString: process.env.DATABASE_URL,
@@ -56,6 +56,7 @@ export class DrizzleOrmService
 
 			this.instance = new DrizzleOrmService(
 				drizzle_driver,
+				LoggerServiceFactory.getLogger()
 			)
 		}
 
