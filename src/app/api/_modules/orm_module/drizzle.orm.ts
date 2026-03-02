@@ -31,6 +31,7 @@ export class DrizzleOrmService
 	extends BaseOrmService {
 
 	private static instance: DrizzleOrmService | undefined;
+	protected readonly _driver: TDrizzleOrm;
 
 	private constructor(
 		driver: TDrizzleOrm,
