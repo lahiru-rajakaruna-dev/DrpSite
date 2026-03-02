@@ -34,11 +34,14 @@ export class DrizzleOrmService
 	protected readonly _driver: TDrizzleOrm;
 
 	private constructor(
-		driver: TDrizzleOrm,
+		drizzleOrm: TDrizzleOrm,
+		logger: ILoggerService
 	) {
 		super(
-			driver,
+			logger,
 		)
+
+		this._driver = drizzleOrm
 
 	}
 
