@@ -1,0 +1,36 @@
+name: Deployment - Containerize & Push
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - production
+
+jobs:
+  build_and_containerize:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      packages: write
+
+      steps:
+        - name: Clone Code
+          uses: actions/checkout@v4
+
+        - name: Build Project
+          run: npm run build
+
+        - name: Build Docker Image
+          run: docker build -t dropsite:latest .
+
+        - name: Login to GHCR
+          run: echo "${{secrets.GITHUB_TOKEN}}" | docker login ghcr.io -u ${{github.actor}} --password-stdin
+
+        - name: Push to Image Registery
+          run: docker push ghcr.io/${{github.repository}}/:latest
+
+
+
+
+

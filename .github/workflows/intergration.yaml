@@ -1,0 +1,30 @@
+name: Integration - Test & Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-code:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Code Cloning
+        uses: actions/checkout@v4
+
+      - name: Running Tests
+        run: npm run test
+
+
+  containerize:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Code Cloning
+        uses: actions/checkout@v4
+
+      - name: Build Code
+        run: npm run build
+
+      - name: Containerize
+        run: docker build -t dropsite:latest .
+
+
